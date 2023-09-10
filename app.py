@@ -51,12 +51,15 @@ selected_count_2 = st.slider("結果の出力件数の上限を指定してく�
 selected_score_2 = st.number_input("スコアの下限を指定してください", value = 0.2, min_value = 0.0, max_value = 0.99) # add: スコア下限の指定
 selected_movie_ids = [movie_title_to_id[movie] for movie in selected_movies]
 vectors = [model.wv.get_vector(movie_id) for movie_id in selected_movie_ids]
+count_1 = 0
 if len(selected_movies) > 0:
     for selected_movie in selected_movies:
         st.write(f"あなたが選択した映画の1つは{selected_movie}(id={movie_title_to_id[selected_movie]})です")
+        count_1 += 1
 st.write(f"あなたが指定した検索件数の上限は{selected_count_2}です") # add: 指定した検索件数の上限の表示
 st.write(f"あなたが指定したスコア下限は{selected_score_2}です") # add: 指定したスコア下限の表示
 if len(selected_movies) > 0:
+    count_2 = 0
     user_vector = np.mean(vectors, axis=0)
     st.markdown(f"### おすすめの映画")
     recommend_results = []
@@ -66,6 +69,8 @@ if len(selected_movies) > 0:
         title = movie_id_to_title[movie_id]
         genre = movie_id_to_genre[movie_id] # add: genreの追加
         tag = movie_id_to_tag[movie_id] # add: tagの追加
-        recommend_results.append({"movie_id":movie_id, "title": title, "genre": genre, "tag": tag, "score": score})
+        if not (count_2 < count_1): # add: 選択した映画の非表示
+            recommend_results.append({"movie_id":movie_id, "title": title, "genre": genre, "tag": tag, "score": score})
+        count_2 += 1
     recommend_results = pd.DataFrame(recommend_results)
     st.write(recommend_results)
